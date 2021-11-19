@@ -22,7 +22,7 @@ exports.readPost = (req, res, next) => {
   
 };
 
-exports.createPost = (req, res, next) => {
+exports.createPost = async (req, res, next) => {
   let fileName;
 
   if (req.file !== null) {
@@ -116,25 +116,3 @@ exports.deletePost = (req, res, next) => {
     });
   
 }
-
-exports.likePost = (req, res, next) => {
-
-};
-
-exports.unlikePost = (req, res, next) => {
-
-};
-
-exports.commentPost = (req, res, next) => {
-
-};
-
-exports.editCommentPost = (req, res, next) => {
-
-};
-
-exports.deleteCommentPost = (req, res, next) => {
-
-};
-
-

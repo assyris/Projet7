@@ -1,14 +1,45 @@
 const db = require("../models");
 const User = db.user;
+const Post = db.post;
+const Comment = db.comment;
+
+module.exports.getAllUsers = async (req, res) => {
+  User.findAll({
+      where: {id: { [Op.gt]: 0 }} 
+  })    
+  .then( (found) => {
+      res.status(200).json({ found }) 
+  })
+  .catch((error) => { 
+      res.status(400).json({ error }) 
+  })
+}
 
 module.exports.userInfo = (req, res) => {
-    const id = req.params.id;
-
-  User.findByPk(id, (err, docs) => {
-    if (!err) res.send(docs);
-    else console.log("ID unknown : " + err);
-  }).select("-password");
-  };
+  const userData = {}
+  User.findOne({ where: { id: req.params.id }})
+  .then(user => {
+      userData.id = user.id
+      userData.pseudo = user.pseudo
+      userData.email = user.email
+      userData.picture = user.picture
+      userData.bio = user.bio
+  })
+  .then(() => {
+      Post.count({ where: { id: req.params.id }})
+      .then(total => { 
+          userData.totalMessages = total
+      })
+  })  
+  .then(() => {
+      Comment.count({ where: { id: req.params.id }})
+      .then( total => { 
+          userData.totalComments = total
+          res.status(200).json(userData)
+      })
+  })
+  .catch(error => res.status(404).json({ error }))
+}
 
   module.exports.updateUser = async (req, res) => {
     const id = req.params.id;
@@ -57,3 +88,5 @@ module.exports.userInfo = (req, res) => {
       });
     });
   };
+
+  
