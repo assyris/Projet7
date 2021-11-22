@@ -2,8 +2,10 @@ Il faudra avoir installé:
     * Node.js (et donc npm),
     * MySQL,
 
-il faut fair un "npm install" et un "nodemon server" dans "/backend" pour lancé le serveur
+il faut faire un "npm install" puis un "nodemon server" dans "/backend" pour lancé le serveur
 
-puis un "npm install" et "npm start" dans "/backend/client" pour lancer le front
+et un "npm install" puis "npm start" dans "/backend/client" pour lancer le front
 
 je t'ai laissé ma database groupomania.sql 
+
+et dans "/backend/config/db.config.js" il faudra que tu mettes ton PASSWORD MySQL
