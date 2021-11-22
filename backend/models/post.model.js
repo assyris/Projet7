@@ -17,8 +17,10 @@ module.exports = (sequelize, Sequelize) => {
         timestamps: {
             type: Sequelize.DATE
         },
-        users_id: {
-            type: Sequelize.INTEGER
+        user_id: {
+            type: Sequelize.INTEGER,
+            foreignKey: 'fk_post_user',
+            defaultValue: null
         }
     },
         {
