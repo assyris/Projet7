@@ -1,45 +1,42 @@
 const db = require("../models");
 const User = db.user;
-const Post = db.post;
-const Comment = db.comment;
+const { Op } = require("sequelize");
 
-module.exports.getAllUsers = async (req, res) => {
-  User.findAll({
-      where: {id: { [Op.gt]: 0 }} 
-  })    
-  .then( (found) => {
-      res.status(200).json({ found }) 
-  })
-  .catch((error) => { 
-      res.status(400).json({ error }) 
-  })
-}
+module.exports.getAllUsers = (req, res) => {
+  const id = req.query.id;
+  var users = id ? { id: { [Op.like]: `%${id}%` } } : null;
 
-module.exports.userInfo = (req, res) => {
-  const userData = {}
-  User.findOne({ where: { id: req.params.id }})
-  .then(user => {
-      userData.id = user.id
-      userData.pseudo = user.pseudo
-      userData.email = user.email
-      userData.picture = user.picture
-      userData.bio = user.bio
-  })
-  .then(() => {
-      Post.count({ where: { id: req.params.id }})
-      .then(total => { 
-          userData.totalMessages = total
-      })
-  })  
-  .then(() => {
-      Comment.count({ where: { id: req.params.id }})
-      .then( total => { 
-          userData.totalComments = total
-          res.status(200).json(userData)
-      })
-  })
-  .catch(error => res.status(404).json({ error }))
-}
+  User.findAll({ where: users })
+    .then(data => {
+      res.send(data);
+    })
+    .catch(err => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving tutorials."
+      });
+    });
+};
+
+exports.userInfo = (req, res) => {
+  const id = req.params.id;
+
+  User.findByPk(id)
+    .then(data => {
+      if (data) {
+        res.send(data);
+      } else {
+        res.status(404).send({
+          message: `Cannot find User with id=${id}.`
+        });
+      }
+    })
+    .catch(err => {
+      res.status(500).send({
+        message: "Error retrieving User with id=" + id
+      });
+    });
+};
 
   module.exports.updateUser = async (req, res) => {
     const id = req.params.id;

@@ -6,6 +6,7 @@ const postRoutes = require('./routes/post.routes');
 require('dotenv').config({path: './config/.env'});
 const {checkUser, requireAuth} = require('./middleware/auth.middleware');
 const cors = require("cors");
+const path = require("path");
 
 const app = express();
 
@@ -41,6 +42,8 @@ app.get('*', checkUser);
 app.get('/jwtid', requireAuth, (req, res) => {
   res.status(200).send(res.locals.user._id)
 });
+
+app.use("/images",express.static(path.join(__dirname, "images")));
 
 app.use('/api/user', userRoutes);
 app.use('/api/post', postRoutes);

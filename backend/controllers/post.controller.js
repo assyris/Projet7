@@ -1,72 +1,76 @@
 const db = require("../models");
 const Post = db.post;
+const { uploadErrors } = require("../utils/errors.utils");
 const fs = require('fs');
-// const { promisify } = require("util");
-// const pipeline = promisify(require("stream").pipeline);
+const { promisify } = require("util");
+const pipeline = promisify(require("stream").pipeline);
 // const Op = db.Sequelize.Op;
 
-exports.createPost = (req, res, next) => {
-      let imagePost = "";
+// exports.createPost = (req, res, next) => {
+//       let imagePost = "";
 
-      if (req.file) { 
-          imagePost = `${req.protocol}://${req.get("host")}/../client/public/uploads/posts/${req.file.filename}` 
-      }
-      const newPost = new Post(
-          {
-              message: req.body.message,
-              picture: imagePost,
-              video: req.body.video,
-              user_id: req.body.user_id
-          }
+//       if (req.file) { 
+//           imagePost = `${req.protocol}://${req.get("host")}/images/${req.file.filename}` 
+//       }
+//       const newPost = new Post(
+//           {
+//               posterId: req.body.posterId, 
+//               message: req.body.message,
+//               picture: imagePost,
+//               video: req.body.video,
+//               user_id: req.body.user_id
+//           }
+//       )
+//       console.log(Post)
+//       newPost.save()
+//           .then(() => res.status(201).json({ message: "Publication réussie" }))
+//           .catch(error => res.status(400).json({ error }))
+//   };
+
+exports.createPost = async (req, res, next) => {
+  let fileName;
+
+  if (req.file) {
+    try {
+      if (
+        req.file.detectedMimeType != "image/jpg" &&
+        req.file.detectedMimeType != "image/png" &&
+        req.file.detectedMimeType != "image/jpeg"
       )
-      console.log(Post)
-      newPost.save()
-          .then(() => res.status(201).json({ message: "Publication réussie" }))
-          .catch(error => res.status(400).json({ error }))
-  };
+        throw Error("invalid file");
 
-// exports.createPost = async (req, res, next) => {
-//   let fileName;
+      if (req.file.size > 500000) throw Error("max size");
+    } catch (err) {
+      const errors = uploadErrors(err);
+      return res.status(201).json({ errors, message: "toto" });
+    }
+    fileName = req.body.posterId + Date.now() + ".jpg";
+    console.log(filename);
 
-//   if (req.file !== null) {
-//     try {
-//       if (
-//         req.file.detectedMimeType != "image/jpg" &&
-//         req.file.detectedMimeType != "image/png" &&
-//         req.file.detectedMimeType != "image/jpeg"
-//       )
-//         throw Error("invalid file");
+    await pipeline(
+      req.file.stream,
+      fs.createWriteStream(
+        `${__dirname}/../client/public/uploads/posts/${fileName}`
+      )
+    );
+  }
 
-//       if (req.file.size > 500000) throw Error("max size");
-//     } catch (err) {
-//       const errors = uploadErrors(err);
-//       return res.status(201).json({ errors });
-//     }
-//     fileName = req.body.posterId + Date.now() + ".jpg";
+  const newPost = Post.build({
+    posterId: req.body.posterId,
+    message: req.body.message,
+    picture: req.file !== null ? "/../client/public/uploads/posts/" + fileName : "",
+    video: req.body.video,
+    user_id: req.body.user_id
+  });
 
-//     await pipeline(
-//       req.file.stream,
-//       fs.createWriteStream(
-//         `${__dirname}/../client/public/uploads/posts/${fileName}`
-//       )
-//     );
-//   }
-
-//   const newPost = Post.build({
-//     posterId: req.body.posterId,
-//     message: req.body.message,
-//     picture: req.file !== null ? "./uploads/posts/" + fileName : "",
-//     video: req.body.video
-//   });
-
-//   try {
-//     const post = await newPost.save();
-//     return res.status(201).json(post);
-//   } catch (err) {
-//     return res.status(400).send(err);
-//   }
+  try {
+    const post = await newPost.save();
+    return res.status(201).json(post);
+  } catch (err) {
+    return res.status(400).send(err);
+  }
   
-// };
+};
 
 exports.readPost = (req, res, next) => {
   const id = req.query.id;
@@ -84,7 +88,7 @@ exports.readPost = (req, res, next) => {
   
 };
 
-module.exports.updatePost = (req, res) => {
+exports.updatePost = (req, res) => {
   const id = req.params.id;
 
   Post.update(req.body, {

@@ -3,8 +3,7 @@ const User = db.user;
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
 const { signUpErrors } = require('../utils/errors.utils');
-require('dotenv').config();
-
+require('dotenv').config({path: './config/.env'});
 
 module.exports.signUp = async (req, res) => {
   const {pseudo, email} = req.body;
@@ -96,7 +95,12 @@ exports.signIn = (req, res, next) => {
         token: jwt.sign( { id: user.id }, process.env.RANDOM_TOKEN_SECRET, { expiresIn: '24h' } )
       })
     })
-    .catch(error => res.status(500).json({ message: "bcrypt compar", error }));                             
+    .catch(error => res.status(500).json({ message: "bcrypt compare", error }));                             
     })
   .catch(error => res.status(500).json({ message: "find one", error }));                                 
 };
+
+module.exports.logout = (req, res) => {
+  res.cookie('jwt', '', { maxAge: 1 });
+  res.redirect('/');
+}

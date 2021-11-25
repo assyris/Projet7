@@ -28,7 +28,7 @@ module.exports.signInErrors = (err) => {
     errors.password = "Le mot de passe ne correspond pas"
 
   return errors;
-}
+};
 
 module.exports.uploadErrors = (err) => {
   let errors = { format: '', maxSize: ""};
@@ -40,4 +40,4 @@ module.exports.uploadErrors = (err) => {
     errors.maxSize = "Le fichier dépasse 500ko";
 
   return errors
-}
+};

@@ -2,10 +2,13 @@ module.exports = (sequelize, Sequelize) => {
     const Comment = sequelize.define("comment", {
         commentId: {
             type: Sequelize.INTEGER,
+            autoIncrement: true,
             primaryKey: true,
         },
         posterId: {
-            type: Sequelize.INTEGER
+            type: Sequelize.INTEGER,
+            foreignKey: 'fk_comment_post',
+            defaultValue: null
         },
         commenterPseudo: {
             type: Sequelize.STRING
