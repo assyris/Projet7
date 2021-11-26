@@ -58,7 +58,7 @@ exports.createPost = async (req, res, next) => {
   const newPost = Post.build({
     posterId: req.body.posterId,
     message: req.body.message,
-    picture: req.file !== null ? "/../client/public/uploads/posts/" + fileName : "",
+    picture: req.file !== null ? "./uploads/posts/" + fileName : "",
     video: req.body.video,
     user_id: req.body.user_id
   });

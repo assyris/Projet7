@@ -19,7 +19,7 @@ module.exports.uploadProfil = async (req, res) => {
     const errors = uploadErrors(err);
     return res.status(201).json({ errors });
   }
-  const fileName = req.body.name + ".jpg";
+  const fileName = req.body.pseudo + ".jpg";
 
   await pipeline(
     req.file.stream,
@@ -30,15 +30,15 @@ module.exports.uploadProfil = async (req, res) => {
 
   try {
     await User.findByIdAndUpdate(
-      req.body.userId,
+      req.body.id,
       { $set : {picture: "./uploads/profil/" + fileName}},
       { new: true, upsert: true, setDefaultsOnInsert: true},
       (err, docs) => {
         if (!err) return res.send(docs);
-        else return res.status(500).send({ message: err });
+        else return res.status(500).send({ err, message: "err update" });
       }
     );
   } catch (err) {
-    return res.status(500).send({ message: err });
+    return res.status(500).send({ err, message: "err image" });
   }
 };

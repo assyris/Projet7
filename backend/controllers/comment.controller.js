@@ -35,11 +35,28 @@ exports.commentPost = (req, res) => {
 exports.deleteCommentPost = (req, res) => {
     
   
-    Comment.destroy({
-      where: { id: req.query.commentId }
+  const id = req.params.id;
+
+  Comment.destroy({
+    where: { commentId: id }
+  })
+    .then(num => {
+      if (num == 1) {
+        res.send({
+          message: "Comment was deleted successfully!"
+        });
+      } else {
+        res.send({
+          message: `Cannot delete comment with id=${id}. Maybe comment was not found!`
+        });
+      }
     })
-    .then(() => res.status(200).json({ message: "Commentaire supprimé !" }))
-    .catch(error => res.status(400).json({ error }))
-  };
+    .catch(err => {
+      res.status(500).send({
+        message: "Could not delete comment with id=" + id + err
+      });
+    });
+  
+}
 
 
